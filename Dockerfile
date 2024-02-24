@@ -1,17 +1,14 @@
-FROM golang:1.21-alpine
-LABEL authors="oliverkirk-sudo"
-
-RUN apk add --update redis
-
+FROM golang:1.21-alpine AS builder
 WORKDIR /app
-
 COPY go.mod ./
 COPY go.sum ./
-
 RUN go mod download
-
 COPY . .
-
+RUN go env -w GO111MODULE=on && go env -w GOPROXY=https://goproxy.cn,direct 
 RUN go build -o warpgpt
 
-CMD redis-server & sleep 3 & ./warpgpt
+FROM alpine
+WORKDIR /app
+COPY --from=builder /app/warpgpt .
+EXPOSE 5000
+CMD './warpgpt'
