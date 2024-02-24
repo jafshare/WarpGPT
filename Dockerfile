@@ -9,5 +9,6 @@ RUN go build -o warpgpt
 FROM alpine
 WORKDIR /app
 COPY --from=builder /app/warpgpt .
+COPY .env .
 EXPOSE 5000
 CMD './warpgpt'
